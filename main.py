@@ -1,10 +1,13 @@
 from contextlib import nullcontext
+from turtle import delay
 from xml.etree.ElementPath import find
 from fastapi import FastAPI, Response, status, HTTPException
 from fastapi.params import Body
 from pydantic import BaseModel
 from random import randrange
-
+import psycopg2
+from psycopg2.extras import RealDictCursor
+from time import sleep
 
 app = FastAPI()
 
@@ -17,6 +20,23 @@ class Post(BaseModel):
     published: bool = True
     id: int = -1
 
+
+
+while(True):
+    try:
+        connection = psycopg2.connect(host='localhost', database ='FASTAPI', username = 'postgres', password = 'College@1403', cursor_factory= RealDictCursor)
+        cursor = connection.cursor()
+        print("DB connection was successful")
+        break
+    except Exception as error:
+
+        print("Connection to DB failed.")
+        print("Error: ", error)
+        print("Retrying in 5.")
+        sleep(5)
+        
+
+
 def findPost(id):
     for p in my_posts:
         if p['id'] == id:
@@ -25,7 +45,7 @@ def findPost(id):
        
 @app.get("/")
 async def root():
-    return {"message": "Hello World!!!!!!!!!!!!!!"}
+    return {"message": "Hello World!!!!!!!!!!!!!! Send Money"}
 
 @app.get("/posts")
 def get_Posts():

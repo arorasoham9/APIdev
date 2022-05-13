@@ -33,6 +33,7 @@ async def root():
 
 @app.get("/posts")
 def get_Posts():
+    cursor.execute()
     return {"data": my_posts}
 
 @app.post("/posts")
