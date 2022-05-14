@@ -32,7 +32,7 @@ while(True):
 
         print("Connection to DB failed.")
         print("Error: ", error)
-        print("Retrying in 5.")
+        print("Retrying in 5 seconds.")
         sleep(5)
         
 
@@ -49,6 +49,7 @@ async def root():
 
 @app.get("/posts")
 def get_Posts():
+    posts = cursor.execute(""" SELECT * FROM products""")
     return {"data": my_posts}
 
 @app.post("/posts")
