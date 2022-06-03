@@ -1,18 +1,19 @@
 from asyncio import streams
 from tokenize import String
-from turtle import st
 from pydantic import BaseModel,  EmailStr
 from datetime import datetime
 
 
-class Post(BaseModel):
+
+    
+class PostCreate(BaseModel):
     title: str
     content: str
     published: bool = True
-    
-class PostCreate(Post): 
-    pass
 
+class Post(PostCreate):
+    
+    created_by: str
 
 class PostResponse(Post):
     id: int
@@ -42,9 +43,7 @@ class User_Login(BaseModel):
     password: str
 
 class Authenticated(BaseModel):
-    email: EmailStr
     access_token: str
     token_type: str
+    
 
-    class Config:
-        orm_mode = True
