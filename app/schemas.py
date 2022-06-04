@@ -15,10 +15,23 @@ class Post(PostCreate):
     
     created_by: str
 
+class User_Login(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class User_return(BaseModel):
+    email: EmailStr
+    username: str
+
+    class Config:
+        orm_mode = True
+
 class PostResponse(Post):
     id: int
     created_at: datetime
-
+    created_by: str
+    owner: User_return
     class Config:
         orm_mode = True
 
@@ -28,6 +41,12 @@ class User(BaseModel):
     email: EmailStr
     password: str
     
+    
+
+
+class Authenticated(BaseModel):
+    access_token: str
+    token_type: str
 
 class UserResponse(BaseModel):
     created_at: datetime
@@ -38,12 +57,5 @@ class UserResponse(BaseModel):
     class Config:
         orm_mode = True
 
-class User_Login(BaseModel):
-    email: EmailStr
-    password: str
-
-class Authenticated(BaseModel):
-    access_token: str
-    token_type: str
     
 

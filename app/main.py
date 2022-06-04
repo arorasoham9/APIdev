@@ -16,6 +16,8 @@ from time import sleep
 
 from sqlalchemy import Identity, null
 
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from . import utils
 from . import models
 from .schemas import Post, PostResponse, User, UserResponse
@@ -32,19 +34,28 @@ app = FastAPI()
 
 
 
+origins = ["*"]
 
-while(True):
-    try:
-        connection = psycopg2.connect(host='localhost', database ='FastAPI', user = 'postgres', password = 'College@1403', cursor_factory= RealDictCursor)
-        cursor = connection.cursor()
-        print("DB connection was successful")
-        break
-    except Exception as error:
 
-        print("Connection to DB failed.")
-        print("Error: ", error)
-        print("Retrying in 5 seconds.")
-        sleep(5)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+# while(True):
+#     try:
+#         connection = psycopg2.connect(host='localhost', database ='FastAPI', user = 'postgres', password = 'College@1403', cursor_factory= RealDictCursor)
+#         cursor = connection.cursor()
+#         print("DB connection was successful")
+#         break
+#     except Exception as error:
+
+#         print("Connection to DB failed.")
+#         print("Error: ", error)
+#         print("Retrying in 5 seconds.")
+#         sleep(5)
         
 
 app.include_router(post.router)

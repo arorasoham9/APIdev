@@ -1,4 +1,3 @@
-
 from .. import models, schemas, utils,oath2
 from fastapi import  FastAPI, Response, status, HTTPException, Depends, APIRouter
 from ..database import get_db
@@ -11,13 +10,21 @@ router = APIRouter(prefix = '/posts',
                     tags= ['Posts'])
 
 
-@router.get("/")
-def get_Posts(db: Session = Depends(get_db), response_Model = List[PostResponse]):
+@router.get("/", response_model = List[PostResponse])
+def get_Posts(db: Session = Depends(get_db)):
     # cursor.execute(""" SELECT * FROM posts""")
     # posts = cursor.fetchall()
     posts =  db.query(models.Post).all()
     return posts
 
+
+@router.get("/all", response_model = List[PostResponse])
+def getUserPosts(db:Session =Depends(get_db), curuser: User = Depends(oath2.get_User)):
+    userposts = db.query(models.Post).filter(models.Post.created_by == curuser.username).all()
+    if userposts is None:
+        raise HTTPException(status_code= status.HTTP_404_NOT_FOUND, 
+                            detail ="No posts were found.")
+    return userposts
 @router.post("/", status_code = status.HTTP_201_CREATED, response_model= PostResponse)
 def make_Post(post: PostCreate,db: Session = Depends(get_db), curuser: User = Depends(oath2.get_User)):
     # cursor.execute(""" INSERT INTO posts (content,title,published) VALUES (%s, %s, %s) RETURNING *""",(new_post.content, new_post.title, new_post.published))
@@ -75,16 +82,17 @@ def del_post(id: int,db: Session = Depends(get_db), curuser: User = Depends(oath
 
 
 @router.put("/{id}", response_model = PostResponse)
-def updatePost(id:int, post: Post,db: Session = Depends(get_db), curuser: User = Depends(oath2.get_User)):
+def updatePost(id:int, post: PostCreate,db: Session = Depends(get_db), curuser: User = Depends(oath2.get_User)):
     # cursor.execute("UPDATE posts SET title = %s, content = %s WHERE id = %s RETURNING *", (post.title, post.content, (str(id))))
     # updatedPost = cursor.fetchone()
     update = db.query(models.Post).filter(models.Post.id == id)
     updatedPost = update.first()
+    print(type(updatedPost))
     
     if updatedPost is None:
         raise HTTPException(status_code = status.HTTP_404_NOT_FOUND,
                             detail = f"Post with ID {id} was not found.")
-    if curuser.username != del_post.create_by:
+    if curuser.username != updatedPost.created_by:
         raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED, 
                             detail = f"You do not have permissions to update this post.")
     update.update(post.dict(), synchronize_session = False)
